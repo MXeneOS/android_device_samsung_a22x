@@ -15,6 +15,7 @@ $(call inherit-product, device/samsung/a22x/device.mk)
 $(call inherit-product, vendor/lineage/config/common_full_phone.mk)
 
 PRODUCT_DEVICE := a22x
+LINEAGE_BUILD := a22x
 PRODUCT_NAME := lineage_a22x
 PRODUCT_BRAND := samsung
 PRODUCT_MODEL := SM-A226B
