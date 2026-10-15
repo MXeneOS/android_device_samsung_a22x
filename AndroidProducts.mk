@@ -5,9 +5,9 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/lineage_a22x.mk
+    $(LOCAL_DIR)/crdroid_a22x.mk
 
 COMMON_LUNCH_CHOICES := \
-    lineage_a22x-user \
-    lineage_a22x-userdebug \
-    lineage_a22x-eng
+    crdroid_a22x-user \
+    crdroid_a22x-userdebug \
+    crdroid_a22x-eng
