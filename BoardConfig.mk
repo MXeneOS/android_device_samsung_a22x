@@ -12,6 +12,8 @@ BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 
 # OTA
 TARGET_OTA_ASSERT_DEVICE := a22x
+# non-A/B device (single boot/recovery/vbmeta slots, lpdump has no _a/_b); Android 16 defaults this to true
+AB_OTA_UPDATER := false
 
 # Architecture
 TARGET_ARCH := arm64
