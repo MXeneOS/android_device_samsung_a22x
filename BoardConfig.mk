@@ -15,6 +15,10 @@ TARGET_OTA_ASSERT_DEVICE := a22x
 # non-A/B device (single boot/recovery/vbmeta slots, lpdump has no _a/_b); Android 16 defaults this to true
 AB_OTA_UPDATER := false
 
+# No recovery image: the vendor image is a prebuilt, so Lineage cannot place its recovery copy into
+# /vendor/etc (make_recovery_patch fails), and the zip must not touch the recovery partition (TWRP).
+TARGET_NO_RECOVERY := true
+
 # Architecture
 TARGET_ARCH := arm64
 TARGET_ARCH_VARIANT := armv8-a
