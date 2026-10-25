@@ -37,5 +37,4 @@ ro.setupwizard.wifi_on_exit=false
 setupwizard.feature.enable_stencil_partner_customization=1
 setupwizard.feature.support_oem_large_screen_landscape_temporary_by_sys_prop=true
 setupwizard.phenotype_sync_timeout_ms=90000
-setupwizard.theme=glif_v3_light
 
