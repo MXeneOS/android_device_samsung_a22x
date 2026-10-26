@@ -1,0 +1,81 @@
+From 8b531375bf28ec74d77c6993f8777e9c5edc7ffd Mon Sep 17 00:00:00 2001
+From: Adri <git@verbto.be>
+Date: Mon, 26 Oct 2026 22:42:22 +0100
+Subject: [PATCH 3/3] a22x only: BpfNetMaps runs without local_net_access_map
+ when it cannot be opened (4.14 cannot iterate an LPM trie, errno 524); null
+ guards for add/remove/get/init/dump (cf. TrebleDroid 36302a1417)
+
+Change-Id: Ia36c208cd6dced603c55f48f4b1b40975368769c
+---
+ .../src/com/android/server/BpfNetMaps.java    | 20 +++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/service/src/com/android/server/BpfNetMaps.java b/service/src/com/android/server/BpfNetMaps.java
+index a96819380c..fdeaf18f2b 100644
+--- a/service/src/com/android/server/BpfNetMaps.java
++++ b/service/src/com/android/server/BpfNetMaps.java
+@@ -294,7 +294,10 @@ public class BpfNetMaps {
+             return SingleWriterBpfMap.getSingleton(LOCAL_NET_ACCESS_MAP_PATH,
+                     LocalNetAccessKey.class, Bool.class);
+         } catch (ErrnoException e) {
+-            throw new IllegalStateException("Cannot open local_net_access map", e);
++            // a22x: kernels older than 4.20 cannot iterate an LPM trie (errno 524), which
++            // SingleWriterBpfMap does when it opens a map. Run without local network access rules.
++            Log.e(TAG, "Cannot open local_net_access map, continuing without it", e);
++            return null;
+         }
+     }
+ 
+@@ -355,10 +358,12 @@ public class BpfNetMaps {
+             if (sLocalNetAccessMap == null) {
+                 sLocalNetAccessMap = getLocalNetAccessMap();
+             }
+-            try {
+-                sLocalNetAccessMap.clear();
+-            } catch (ErrnoException e) {
+-                throw new IllegalStateException("Failed to initialize local_net_access map", e);
++            if (sLocalNetAccessMap != null) {
++                try {
++                    sLocalNetAccessMap.clear();
++                } catch (ErrnoException e) {
++                    throw new IllegalStateException("Failed to initialize local_net_access map", e);
++                }
+             }
+ 
+             if (sLocalNetBlockedUidMap == null) {
+@@ -915,6 +920,7 @@ public class BpfNetMaps {
+             final InetAddress address, final int protocol, final int remotePort,
+             final boolean isAllowed) {
+         throwIfPre25Q2("addLocalNetAccess is not available on pre-B devices");
++        if (sLocalNetAccessMap == null) return;
+         if (iface == null) {
+             Log.e(TAG, "Null iface, skip addLocalNetAccess for " + address);
+             return;
+@@ -952,6 +958,7 @@ public class BpfNetMaps {
+     public void removeLocalNetAccess(final int lpmBitlen, @Nullable final String iface,
+             final InetAddress address, final int protocol, final int remotePort) {
+         throwIfPre25Q2("removeLocalNetAccess is not available on pre-B devices");
++        if (sLocalNetAccessMap == null) return;
+         final int ifIndex;
+         if (iface == null) {
+             ifIndex = 0;
+@@ -988,6 +995,7 @@ public class BpfNetMaps {
+     public boolean getLocalNetAccess(final int lpmBitlen, @Nullable final String iface,
+             final InetAddress address, final int protocol, final int remotePort) {
+         throwIfPre25Q2("getLocalNetAccess is not available on pre-B devices");
++        if (sLocalNetAccessMap == null) return true;
+         final int ifIndex;
+         if (iface == null) {
+             ifIndex = 0;
+@@ -1326,7 +1334,7 @@ public class BpfNetMaps {
+                     (key, value) -> "[" + key.dstAddr + "]: "
+                             + value.iif1 + "(" + mDeps.getIfName(value.iif1) + "), "
+                             + value.iif2 + "(" + mDeps.getIfName(value.iif2) + ")");
+-            if (sLocalNetBlockedUidMap != null) {
++            if (sLocalNetAccessMap != null) {
+                 BpfDump.dumpMap(sLocalNetAccessMap, pw, "sLocalNetAccessMap (default is true meaning global)",
+                         (key, value) -> "" + key + ": " + value.val);
+             }
+-- 
+2.47.3
+

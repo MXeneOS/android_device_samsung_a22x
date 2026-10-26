@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Local manifest for the a22x port. Additive only: used together with the core's manifests/mxeneos.xml
+     (the hardening2 set), which this file does not repeat. Revisions are the heads read on 2026-10-25. -->
+<manifest>
+  <remote name="loftenth" fetch="https://github.com/loftenth-eepy" />
+  <remote name="mxeneos" fetch="ssh://git@github.com/MXeneOS" />
+
+  <project path="device/samsung/a22x" name="android_device_samsung_a22x" remote="loftenth"
+           revision="55d4ae4485f09a84d05264f2478ee7980a96c649" upstream="refs/heads/lineage" />
+  <!-- Kernel source is only for the out-of-tree clean kernel build; the platform build uses the prebuilt
+       Image.gz this build produces (see WORKLOG.md). -->
+  <project path="kernel/samsung/a22x" name="android_kernel_samsung_a22x" remote="loftenth"
+           revision="c0ba912d931ca43b927d82d437968061daef48ac" upstream="refs/heads/master" />
+  <project path="device/mxeneos/a22x" name="mxeneos_device_samsung_a22x" remote="mxeneos" revision="refs/heads/main" />
+</manifest>

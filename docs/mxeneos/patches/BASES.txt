@@ -1,0 +1,1 @@
+base: device/samsung/a22x 55d4ae4485f0 (loftenth-eepy lineage), device/lineage/sepolicy 0a9e752

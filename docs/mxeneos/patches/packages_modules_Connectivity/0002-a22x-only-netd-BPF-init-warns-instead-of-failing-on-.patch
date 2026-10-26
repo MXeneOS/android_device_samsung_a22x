@@ -1,0 +1,48 @@
+From 5c058a12c76415ee2149d9682ad58014b03dcdab Mon Sep 17 00:00:00 2001
+From: Adri <git@verbto.be>
+Date: Mon, 26 Oct 2026 21:15:50 +0100
+Subject: [PATCH 2/3] a22x only: netd BPF init warns instead of failing on
+ kernels older than 4.19 and 5.4, and libnetd_updatable_init returns an error
+ instead of abort() (TrebleDroid 18e503a387)
+
+Change-Id: I0380237ae7ba5ac7a09e8698ac2bdb921bb0d85f
+---
+ bpf/netd/BpfHandler.cpp    | 4 ++--
+ bpf/netd/NetdUpdatable.cpp | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/bpf/netd/BpfHandler.cpp b/bpf/netd/BpfHandler.cpp
+index 7367ec5e97..3884290fa3 100644
+--- a/bpf/netd/BpfHandler.cpp
++++ b/bpf/netd/BpfHandler.cpp
+@@ -98,12 +98,12 @@ static Status initPrograms(const char* cg2_path) {
+ 
+     // V bumps the kernel requirement up to 4.19
+     if (isAtLeastV && !isAtLeastKernelVersion(4, 19)) {
+-        return Status("V+ platform with kernel version < 4.19.0 is unsupported");
++        ALOGW("V+ platform with kernel version < 4.19.0 is unsupported");
+     }
+ 
+     // 25Q2 bumps the kernel requirement up to 5.4
+     if (isAtLeast25Q2 && !isAtLeastKernelVersion(5, 4)) {
+-        return Status("25Q2+ platform with kernel version < 5.4.0 is unsupported");
++        ALOGW("25Q2+ platform with kernel version < 5.4.0 is unsupported");
+     }
+ 
+     unique_fd cg_fd(open(cg2_path, O_DIRECTORY | O_RDONLY | O_CLOEXEC));
+diff --git a/bpf/netd/NetdUpdatable.cpp b/bpf/netd/NetdUpdatable.cpp
+index 3b15916398..2be1ece0be 100644
+--- a/bpf/netd/NetdUpdatable.cpp
++++ b/bpf/netd/NetdUpdatable.cpp
+@@ -32,7 +32,7 @@ int libnetd_updatable_init(const char* cg2_path) {
+     android::netdutils::Status ret = sBpfHandler.init(cg2_path);
+     if (!android::netdutils::isOk(ret)) {
+         LOG(ERROR) << __func__ << ": Failed: (" << ret.code() << ") " << ret.msg();
+-        abort();
++        return -ret.code();
+     }
+     return 0;
+ }
+-- 
+2.47.3
+
