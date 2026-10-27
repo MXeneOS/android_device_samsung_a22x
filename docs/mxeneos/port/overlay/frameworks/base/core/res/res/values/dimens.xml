@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Samsung Galaxy A22 5G (a22x). The framework reports rounded_corner_radius 0, so SystemUI starts the status bar
+     content 8 dp from the edge, where the top-left corner of the physical panel cuts into the first digit of the
+     clock. rounded_corner_content_padding is how far SystemUI keeps status bar, keyguard and navigation bar content
+     away from the corners. First value, to be tuned on the device. -->
+<resources>
+    <dimen name="rounded_corner_content_padding">24dp</dimen>
+</resources>

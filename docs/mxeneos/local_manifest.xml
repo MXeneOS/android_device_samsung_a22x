@@ -5,25 +5,25 @@
      named in the comment, on branch mxeneos/a22x-lineage-23.2. They change a22x-only behaviour that a22x needs
      (older kernel, stock Samsung vendor); see MXENEOS.md in the device tree. -->
 <manifest>
-  <remote name="mxeneos-gh" fetch="https://github.com/MXeneOS" />
+  <remote name="mxeneos-public" fetch="https://github.com/MXeneOS" />
 
   <!-- Device tree: loftenth-eepy lineage 55d4ae4485f0 + the a22x commits and these docs. -->
   <!-- Do not combine with another manifest entry for the same path. -->
-  <project path="device/samsung/a22x" name="android_device_samsung_a22x" remote="mxeneos-gh"
+  <project path="device/samsung/a22x" name="android_device_samsung_a22x" remote="mxeneos-public"
            revision="refs/heads/mxeneos/lineage-23.2" />
 
   <!-- packages/modules/Connectivity: base c9f3e77952, 3 commits, head 8b531375bf -->
   <remove-project name="LineageOS/android_packages_modules_Connectivity" />
-  <project path="packages/modules/Connectivity" name="android_packages_modules_Connectivity" remote="mxeneos-gh"
+  <project path="packages/modules/Connectivity" name="android_packages_modules_Connectivity" remote="mxeneos-public"
            revision="8b531375bf28ec74d77c6993f8777e9c5edc7ffd" upstream="refs/heads/mxeneos/a22x-lineage-23.2" />
 
   <!-- system/netd: base 796eaca5, 1 commit, head 77f5d147 -->
   <remove-project name="LineageOS/android_system_netd" />
-  <project path="system/netd" name="android_system_netd" remote="mxeneos-gh"
+  <project path="system/netd" name="android_system_netd" remote="mxeneos-public"
            revision="77f5d147f3955416de5e979cf68255bcad084709" upstream="refs/heads/mxeneos/a22x-lineage-23.2" />
 
   <!-- device/lineage/sepolicy: base 0a9e752, 2 commits, head a654b9a -->
   <remove-project name="LineageOS/android_device_lineage_sepolicy" />
-  <project path="device/lineage/sepolicy" name="android_device_lineage_sepolicy" remote="mxeneos-gh"
+  <project path="device/lineage/sepolicy" name="android_device_lineage_sepolicy" remote="mxeneos-public"
            revision="a654b9adc50f00c70f118cc8c1c87abca4b987e9" upstream="refs/heads/mxeneos/a22x-lineage-23.2" />
 </manifest>

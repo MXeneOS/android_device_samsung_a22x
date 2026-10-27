@@ -70,13 +70,27 @@ Kernel binaries are not published here; the config matches the phone's `/proc/co
 - Android 16 on a 4.14 kernel and a 3-major-version-old vendor is outside what Google or Lineage support. Expect surprises.
 - hardened_malloc needs a smaller class region on this kernel (39-bit VA): 1 GiB (`docs/mxeneos/port/hardened-malloc.mk`). That value is untested for long-run stability.
 - Local network access rules not enforced (above). Other Android 16 BPF features that need newer kernels are silently absent (25 of 73 program sections load on 4.14.186; the required ones only use helpers in upstream 4.14).
-- Known cosmetic issues in the v7 build, fixed in the next build: status-bar clock too close to the rounded corner (no overlay for the display), default wallpaper (Lineage's runtime overlay wins because `device.mk` sets `PRODUCT_ENFORCE_RRO_TARGETS := *`).
+- Known cosmetic issues in the v7 build, fixed in v8 (see "v8 port changes"): status-bar clock too close to the rounded corner, default wallpaper (Lineage's runtime overlay won because `device.mk` sets `PRODUCT_ENFORCE_RRO_TARGETS := *`), Settings pinned before the Auto reboot entry existed.
 - TWRP could not mount encrypted `/data` after some boots; that is a TWRP decryption issue, not something this branch changes.
 - Flashing is at your own risk. Keep a `boot` backup and the stock firmware at hand.
 
 ## What is deliberately not here
 Kernel and image binaries, signing keys, and the raw survey of the test phone (it contains device identifiers). The vendor and odm partitions
 are never modified.
+
+## v8 port changes (product makefile, not in this device tree's code)
+All in `docs/mxeneos/port/` (the port repo `device/mxeneos/a22x`), none in a shared repository:
+- `PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS += vendor/lineage/overlay/common`. `device.mk` here sets `PRODUCT_ENFORCE_RRO_TARGETS := *`,
+  which turned Lineage's overlay directory into a runtime overlay (`/product/overlay/framework-res__..._auto_generated_rro_product.apk`)
+  that outranks the static branding overlay merged into framework-res, so Lineage's `default_wallpaper` was shown instead of the
+  MXeneOS one. With the exclusion both are static and the branding overlay wins, as on the garnet port.
+- `overlay/frameworks/base/core/res/res/values/dimens.xml`: `rounded_corner_content_padding` = 24 dp. The stock vendor reports no rounded
+  corners (radius 0), so SystemUI started the status bar content 8 dp from the edge and the physical corner cut the top-left of the clock.
+  24 dp was tested live on the phone with a throwaway runtime overlay (it looked right at the first try), then built in statically.
+  SystemUI caches the insets: after changing the value at runtime, restart SystemUI.
+- Settings pinned at `8945dc3ecc2` (MXeneOS core main), which has the Auto reboot entry; the other core pins in main equal the hardening2 set.
+- zip v8: `mxeneos-23.2-20261027-a22x-v8.zip`, 932,846,582 bytes, sha256 `ee434e96a23ba20a9cb77841e1339bfdd1c5a9c1299871c9faaf736ad731b724`,
+  same kernel/boot as v7. Offline checks: `check-policy.sh` ALL PASS, `verify_zip.py` ALL MATCH. Flash result of v8: pending.
 
 ## Failure timeline (each step is one flashed zip)
 - v2: kernel booted, init aborted at 3.7 s, SELinux policy compile failed on the two genfscon conflicts. Reproduced offline with the phone's own vendor policy; a second conflict (camera property) found by the new preflight before flashing.
@@ -89,7 +103,7 @@ are never modified.
 Diagnosis used pstore (`console-ramoops`, `pmsg` persisted logcat) read from TWRP after each failed boot.
 
 ## Layout of `docs/mxeneos/`
-- `port/`: product makefile (`mxeneos_a22x.mk`), `hardened-malloc.mk`, `AndroidProducts.mk`, port manifest. A snapshot of the separate port repo `device/mxeneos/a22x`.
+- `port/`: product makefile (`mxeneos_a22x.mk`), `hardened-malloc.mk`, `AndroidProducts.mk`, port manifest, `overlay/` (display overlay). A snapshot of the separate port repo `device/mxeneos/a22x`.
 - `patches/`: `git format-patch` of the three out-of-tree changes above, with `BASES.txt`.
 - `scripts/`: `mkzip.py`, `check-policy.sh`, `verify_zip.py`, `build-kernel.sh` (written for the author's build node; paths are variables near the top).
 - `KNOWN-DEVIATIONS.md`: where every change lives and what was tried and dropped.
